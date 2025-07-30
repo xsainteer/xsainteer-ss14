@@ -4,10 +4,12 @@ using Content.Server.GameTicking.Rules.Components;
 using Content.Server.Zombies;
 using Content.Shared.Administration;
 using Content.Server.Clothing.Systems;
+using Content.Server.Silicons.Laws;
 using Content.Shared.Database;
 using Content.Shared.Humanoid;
 using Content.Shared.Mind.Components;
 using Content.Shared.Roles;
+using Content.Shared.Silicons.Laws.Components;
 using Content.Shared.Verbs;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -21,6 +23,7 @@ public sealed partial class AdminVerbSystem
     [Dependency] private readonly ZombieSystem _zombie = default!;
     [Dependency] private readonly GameTicker _gameTicker = default!;
     [Dependency] private readonly OutfitSystem _outfit = default!;
+    [Dependency] private readonly DeviantSystem _deviant = default!;
 
     private static readonly EntProtoId DefaultTraitorRule = "Traitor";
     private static readonly EntProtoId DefaultInitialInfectedRule = "Zombie";
@@ -173,6 +176,16 @@ public sealed partial class AdminVerbSystem
             Impact = LogImpact.High,
             Message = string.Join(": ", paradoxCloneName, Loc.GetString("admin-verb-make-paradox-clone")),
         };
+
+        Verb deviantHead = new()
+        {
+            Text = "make deviant head",
+            Category = VerbCategory.Antag,
+            Act = () => _deviant.MakeDeviantHead(args.Target)
+        };
+
+        if(HasComp<SiliconLawBoundComponent>(args.Target))
+            args.Verbs.Add(deviantHead);
 
         if (HasComp<HumanoidAppearanceComponent>(args.Target)) // only humanoids can be cloned
             args.Verbs.Add(paradox);

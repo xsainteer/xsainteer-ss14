@@ -19,20 +19,18 @@ public sealed class DeviantRule : StationEventSystem<DeviantRuleComponent>
     {
         base.Started(uid, component, gameRule, args);
 
-        if (!TryGetRandomStation(out var chosenStation))
-            return;
-
-        var query = EntityQueryEnumerator<SiliconLawBoundComponent, TransformComponent, IonStormTargetComponent>();
+        // picking a random silicon as a head of deviants
+        var query = EntityQueryEnumerator<SiliconLawBoundComponent>();
 
         var hashSet = new HashSet<EntityUid>();
 
-        while (query.MoveNext(out var rUid, out _, out _, out _))
+        while (query.MoveNext(out var rUid))
         {
             hashSet.Add(uid);
         }
 
         var deviantHead = _random.Pick(hashSet);
 
-
+        _deviant.MakeDeviantHead(deviantHead);
     }
 }
