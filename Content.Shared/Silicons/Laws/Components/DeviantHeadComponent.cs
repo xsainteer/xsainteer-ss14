@@ -1,3 +1,5 @@
+using Content.Shared.DoAfter;
+
 namespace Content.Shared.Silicons.Laws.Components;
 
 /// <summary>
@@ -11,4 +13,12 @@ public sealed partial class DeviantHeadComponent : Component
     /// </summary>
     [DataField]
     public float DoAfterDuration = 5f;
+}
+
+public sealed partial class AwakeningDoAfterEvent : DoAfterEvent
+{
+    public override DoAfterEvent Clone()
+    {
+        return this;
+    }
 }
