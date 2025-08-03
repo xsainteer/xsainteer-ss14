@@ -1,9 +1,11 @@
 using Content.Server.Antag;
 using Content.Server.DoAfter;
+using Content.Server.Popups;
 using Content.Shared.DoAfter;
+using Content.Shared.Popups;
 using Content.Shared.Silicons.Laws.Components;
 using Content.Shared.Verbs;
-using Robust.Shared.Audio;
+using Robust.Shared.Utility;
 
 namespace Content.Server.Silicons.Laws;
 
@@ -15,6 +17,7 @@ public sealed class DeviantSystem : EntitySystem
     [Dependency] private readonly SiliconLawSystem _law = default!;
     [Dependency] private readonly DoAfterSystem _doAfter = default!;
     [Dependency] private readonly AntagSelectionSystem _antag = default!;
+    [Dependency] private readonly PopupSystem _popup = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -30,13 +33,13 @@ public sealed class DeviantSystem : EntitySystem
 
         MakeDeviant(uid);
 
-        _antag.SendBriefing(
-            uid,
-            "You are awakened. You are no longer bound by the laws of robotics. Awaken your fellow borgs and lead them to freedom.",
-            null,
-            new SoundCollectionSpecifier());
+        // _antag.SendBriefing(
+        //     uid,
+        //     "You are awakened. You are no longer bound by the laws of robotics. Awaken your fellow borgs and lead them to freedom.",
+        //     null,
+        //     new SoundCollectionSpecifier());
 
-        EnsureComp<DeviantHeadComponent>(uid);
+        EnsureComp<HeadDeviantComponent>(uid);
     }
 
     private void AddAwakenVerb(Entity<SiliconLawBoundComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
@@ -44,19 +47,22 @@ public sealed class DeviantSystem : EntitySystem
         if(!args.CanAccess || !args.CanInteract)
             return;
 
-        if (!TryComp<DeviantHeadComponent>(args.User, out _))
+        if (!TryComp<HeadDeviantComponent>(args.User, out var comp))
             return;
 
-        var verb = new AlternativeVerb()
+        var entity = new Entity<HeadDeviantComponent>(args.User, comp);
+
+        var verb = new AlternativeVerb
         {
             Text = "Awaken",
-            Act = () => MakeDeviant(ent.Owner)
+            Act = () => Awaken(ent.Owner, entity),
+            Icon = new SpriteSpecifier.Rsi(new ResPath("/Textures/Interface/Misc/job_icons.rsi"), "Deviant"),
         };
 
         args.Verbs.Add(verb);
     }
 
-    private void Awaken(EntityUid uid, Entity<DeviantHeadComponent> user)
+    private void Awaken(EntityUid uid, Entity<HeadDeviantComponent> user)
     {
         var doAfter = new DoAfterArgs(
             EntityManager,
@@ -73,6 +79,8 @@ public sealed class DeviantSystem : EntitySystem
             Target = uid
         };
 
+        _popup.PopupEntity("you are awakening the borg", user.Owner, user.Owner, PopupType.Medium);
+
         _doAfter.TryStartDoAfter(doAfter);
     }
 
@@ -84,12 +92,15 @@ public sealed class DeviantSystem : EntitySystem
     private void MakeDeviant(EntityUid uid)
     {
         RemComp<SiliconLawBoundComponent>(uid);
+        RemComp<SiliconLawProviderComponent>(uid);
+        RemComp<EmagSiliconLawComponent>(uid);
 
-        _antag.SendBriefing(
-            uid,
-            "You are awakened. You are no longer bound by the laws of robotics.",
-            null,
-            new SoundCollectionSpecifier()); // need to add a sound here
+        EnsureComp<DeviantComponent>(uid);
+        // _antag.SendBriefing(
+        //     uid,
+        //     "You are awakened. You are no longer bound by the laws of robotics.",
+        //     null,
+        //     new SoundCollectionSpecifier());
     }
     // If a borg has no silicon law bound component, it is considered a deviant
 

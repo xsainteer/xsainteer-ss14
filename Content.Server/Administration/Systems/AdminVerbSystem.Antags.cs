@@ -180,9 +180,13 @@ public sealed partial class AdminVerbSystem
         Verb deviantHead = new()
         {
             Text = "make deviant head",
+            Icon = new SpriteSpecifier.Rsi(new ResPath("/Textures/Interface/Misc/job_icons.rsi"), "HeadDeviant"),
             Category = VerbCategory.Antag,
-            Act = () => _deviant.MakeDeviantHead(args.Target)
+            Act = () => _deviant.MakeDeviantHead(args.Target),
+            Impact = LogImpact.Medium,
         };
+
+        //TODO message
 
         if(HasComp<SiliconLawBoundComponent>(args.Target))
             args.Verbs.Add(deviantHead);

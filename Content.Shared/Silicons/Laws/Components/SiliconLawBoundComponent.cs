@@ -8,7 +8,7 @@ namespace Content.Shared.Silicons.Laws.Components;
 /// <summary>
 /// This is used for entities which are bound to silicon laws and can view them.
 /// </summary>
-[RegisterComponent, NetworkedComponent, Access(typeof(SharedSiliconLawSystem))]
+[RegisterComponent, NetworkedComponent, Access(typeof(SharedSiliconLawSystem)), AutoGenerateComponentState]
 public sealed partial class SiliconLawBoundComponent : Component
 {
     /// <summary>
@@ -16,6 +16,12 @@ public sealed partial class SiliconLawBoundComponent : Component
     /// </summary>
     [DataField]
     public EntityUid? LastLawProvider;
+
+    [DataField]
+    public EntProtoId? ViewLawsAction = "ActionViewLaws";
+
+    [DataField, AutoNetworkedField]
+    public EntityUid? ViewActionEntity;
 }
 
 /// <summary>

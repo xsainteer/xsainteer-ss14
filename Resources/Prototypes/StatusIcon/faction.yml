@@ -53,3 +53,25 @@
   icon:
     sprite: /Textures/Interface/Misc/job_icons.rsi
     state: Syndicate
+
+- type: factionIcon
+  id: HeadDeviantFaction
+  priority: 11
+  showTo:
+    components:
+    - Deviant
+    - ShowAntagIcons
+  icon:
+    sprite: /Textures/Interface/Misc/job_icons.rsi
+    state: HeadDeviant
+
+- type: factionIcon
+  id: DeviantFaction
+  priority: 11
+  showTo:
+    components:
+    - Deviant
+    - ShowAntagIcons
+  icon:
+    sprite: /Textures/Interface/Misc/job_icons.rsi
+    state: Deviant

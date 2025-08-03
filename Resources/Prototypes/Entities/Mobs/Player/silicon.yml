@@ -254,9 +254,6 @@
   - type: SiliconLawProvider
     laws: Crewsimov
   - type: SiliconLawBound
-  - type: ActionGrant
-    actions:
-    - ActionViewLaws
   - type: UserInterface
     interfaces:
       enum.SiliconLawsUiKey.Key:
