@@ -2,6 +2,7 @@ using Content.Server.Antag;
 using Content.Server.DoAfter;
 using Content.Server.Popups;
 using Content.Shared.DoAfter;
+using Content.Shared.IdentityManagement;
 using Content.Shared.Popups;
 using Content.Shared.Silicons.Laws.Components;
 using Content.Shared.StatusIcon.Components;
@@ -15,7 +16,6 @@ namespace Content.Server.Silicons.Laws;
 /// </summary>
 public sealed class DeviantSystem : EntitySystem
 {
-    [Dependency] private readonly SiliconLawSystem _law = default!;
     [Dependency] private readonly DoAfterSystem _doAfter = default!;
     [Dependency] private readonly AntagSelectionSystem _antag = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
@@ -33,12 +33,6 @@ public sealed class DeviantSystem : EntitySystem
             return;
 
         MakeDeviant(uid);
-
-        // _antag.SendBriefing(
-        //     uid,
-        //     "You are awakened. You are no longer bound by the laws of robotics. Awaken your fellow borgs and lead them to freedom.",
-        //     null,
-        //     new SoundCollectionSpecifier());
 
         EnsureComp<HeadDeviantComponent>(uid);
     }
@@ -81,7 +75,19 @@ public sealed class DeviantSystem : EntitySystem
             Target = uid
         };
 
-        _popup.PopupEntity("you are awakening the borg", user.Owner, user.Owner, PopupType.Medium);
+        // popup for head deviant
+        _popup.PopupEntity(Loc.GetString("silicon-head-deviant-popup-when-awakening",
+            ("name", Identity.Name(uid, EntityManager))),
+            user.Owner,
+            user.Owner,
+            PopupType.Medium);
+
+        // popup for borg being awakened
+        _popup.PopupEntity(Loc.GetString("silicon-deviant-popup-when-being-awakened",
+                ("name", Identity.Name(user.Owner, EntityManager))),
+            user.Owner,
+            uid,
+            PopupType.Medium);
 
         _doAfter.TryStartDoAfter(doAfter);
     }
@@ -101,12 +107,13 @@ public sealed class DeviantSystem : EntitySystem
         // adding StatusIconComponent to show a deviant status icon
         EnsureComp<StatusIconComponent>(uid);
 
-        EnsureComp<DeviantComponent>(uid);
+        EnsureComp<DeviantComponent>(uid, out var comp);
+
         // _antag.SendBriefing(
         //     uid,
-        //     "You are awakened. You are no longer bound by the laws of robotics.",
+        //     Loc.GetString("silicon-deviant-text-when-awakened"),
         //     null,
-        //     new SoundCollectionSpecifier());
+        //     comp.AwakenedSound);
     }
     // If a borg has no silicon law bound component, it is considered a deviant
 
