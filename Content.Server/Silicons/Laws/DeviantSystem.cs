@@ -4,6 +4,7 @@ using Content.Server.Popups;
 using Content.Shared.DoAfter;
 using Content.Shared.Popups;
 using Content.Shared.Silicons.Laws.Components;
+using Content.Shared.StatusIcon.Components;
 using Content.Shared.Verbs;
 using Robust.Shared.Utility;
 
@@ -47,6 +48,7 @@ public sealed class DeviantSystem : EntitySystem
         if(!args.CanAccess || !args.CanInteract)
             return;
 
+        // If the user is not a head deviant, do not show the verb
         if (!TryComp<HeadDeviantComponent>(args.User, out var comp))
             return;
 
@@ -91,9 +93,13 @@ public sealed class DeviantSystem : EntitySystem
 
     private void MakeDeviant(EntityUid uid)
     {
+        // removing all components that are related to silicon laws
         RemComp<SiliconLawBoundComponent>(uid);
         RemComp<SiliconLawProviderComponent>(uid);
         RemComp<EmagSiliconLawComponent>(uid);
+
+        // adding StatusIconComponent to show a deviant status icon
+        EnsureComp<StatusIconComponent>(uid);
 
         EnsureComp<DeviantComponent>(uid);
         // _antag.SendBriefing(
